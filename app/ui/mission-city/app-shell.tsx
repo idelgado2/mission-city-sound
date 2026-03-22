@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  Bars3Icon,
   BellAlertIcon,
   MagnifyingGlassIcon,
   UserCircleIcon,
@@ -38,6 +39,7 @@ export function MissionCityShell({ children }: { children: React.ReactNode }) {
   const [savedArtists, setSavedArtists] = useState<string[]>(['Neon Bluff', 'Saint Loma']);
   const [query, setQuery] = useState('');
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [toast, setToast] = useState('');
 
   const filteredTargets = useMemo(() => {
@@ -72,9 +74,18 @@ export function MissionCityShell({ children }: { children: React.ReactNode }) {
           <div className="overflow-hidden rounded-[24px] border border-white/10 bg-[#0c1117] shadow-[0_30px_90px_rgba(0,0,0,0.45)] md:rounded-[30px]">
             <div className="border-b border-white/10 bg-[#0f151d]/95 px-4 py-4 backdrop-blur sm:px-5 sm:py-5 lg:px-7">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-center">
-                <Link href="/dashboard" className="flex items-center">
-                  <MissionCityLogo />
-                </Link>
+                <div className="flex items-center justify-between gap-3">
+                  <Link href="/dashboard" className="flex items-center">
+                    <MissionCityLogo />
+                  </Link>
+                  <button
+                    className="icon-button xl:hidden"
+                    onClick={() => setIsMobileNavOpen((current) => !current)}
+                    aria-label="Toggle navigation menu"
+                  >
+                    {isMobileNavOpen ? <XMarkIcon className="h-5 w-5" /> : <Bars3Icon className="h-5 w-5" />}
+                  </button>
+                </div>
                 <div className="relative w-full xl:flex-1">
                   <MagnifyingGlassIcon className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-500" />
                   <input
@@ -100,7 +111,11 @@ export function MissionCityShell({ children }: { children: React.ReactNode }) {
                   ) : null}
                 </div>
                 <div className="flex flex-wrap items-center gap-3">
-                  <div className="flex rounded-2xl border border-white/10 bg-white/[0.03] p-1">
+                  <div className="rounded-[22px] border border-emerald-500/20 bg-[linear-gradient(180deg,rgba(16,185,129,0.12),rgba(255,255,255,0.03))] p-1.5">
+                    <div className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.28em] text-emerald-300">
+                      Market View
+                    </div>
+                    <div className="flex rounded-2xl bg-[#0d141c] p-1">
                     {(['Austin', 'San Antonio'] as City[]).map((cityOption) => (
                       <button
                         key={cityOption}
@@ -113,6 +128,7 @@ export function MissionCityShell({ children }: { children: React.ReactNode }) {
                         {cityOption}
                       </button>
                     ))}
+                    </div>
                   </div>
                   <button className="icon-button" onClick={() => notify('Alerts panel refreshed.')}>
                     <BellAlertIcon className="h-5 w-5" />
@@ -150,7 +166,7 @@ export function MissionCityShell({ children }: { children: React.ReactNode }) {
                   </div>
                 </div>
               </div>
-              <div className="mt-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+              <div className="mt-5 hidden flex-col gap-3 xl:flex xl:flex-row xl:items-center xl:justify-between">
                 <div className="flex gap-2 overflow-x-auto pb-1">
                   {navItems.map((item) => {
                     const active = pathname === item.href;
@@ -165,10 +181,36 @@ export function MissionCityShell({ children }: { children: React.ReactNode }) {
                     );
                   })}
                 </div>
-                <div className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-xs uppercase tracking-[0.24em] text-zinc-500">
-                  Active city: {city}
+                <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-emerald-300">
+                  Viewing: {city}
                 </div>
               </div>
+              {isMobileNavOpen ? (
+                <div className="mt-5 rounded-[26px] border border-white/10 bg-[#0d141c] p-3 xl:hidden">
+                  <div className="mb-3 flex items-center justify-between px-2">
+                    <div className="text-xs font-semibold uppercase tracking-[0.26em] text-zinc-500">Navigate</div>
+                    <div className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-emerald-300">
+                      {city}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
+                    {navItems.map((item) => {
+                      const active = pathname === item.href;
+                      return (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          onClick={() => setIsMobileNavOpen(false)}
+                          className={`nav-tab flex justify-between px-4 py-3 text-base ${active ? 'nav-tab-active' : ''}`}
+                        >
+                          <span>{item.label}</span>
+                          {active ? <span className="text-emerald-300">Current</span> : null}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : null}
             </div>
             <div className="p-4 sm:p-5 lg:p-7">{children}</div>
           </div>
